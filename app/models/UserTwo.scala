@@ -2,7 +2,7 @@ package models
 
 import org.joda.time.DateTime
 
-case class User(
+case class UserTwo(
   id: Option[Long],
   email: String,
   password: String,
@@ -11,28 +11,29 @@ case class User(
   createdAt: DateTime = DateTime.now()
 )
 
-object User {
+object UserTwo {
 
   import play.api.libs.json._
+
   import play.api.libs.functional.syntax._
 
-  implicit val UserFromJson: Reads[User] = (
+  implicit val UserFromJson: Reads[UserTwo] = (
     (__ \ "id").readNullable[Long] ~
     (__ \ "email").read(Reads.email) ~
     (__ \ "password").read[String] ~
     (__ \ "name").read[String] ~
     (__ \ "dateOfBirth").readNullable[DateTime] ~
     (__ \ "createdAt").read(DateTime.now())
-  )(User.apply _)
+  )(UserTwo.apply _)
 
-  implicit val UserToJson: Writes[User] = (
+  implicit val UserToJson: Writes[UserTwo] = (
     (__ \ "id").writeNullable[Long] ~
     (__ \ "email").write[String] ~
     (__ \ "password").writeNullable[String] ~ // make nullable so password can be omitted
     (__ \ "name").write[String] ~
     (__ \ "dateOfBirth").writeNullable[DateTime] ~
     (__ \ "createdAt").write[DateTime]
-  )((user: User) => (
+  )((user: UserTwo) => (
     user.id,
     user.email,
     None, // here we skip the password
@@ -42,22 +43,22 @@ object User {
   ))
 
 
-  def findOneById(id: Long): Option[User] = {
+  def findOneById(id: Long): Option[UserTwo] = {
     // TODO: find the corresponding user
     //
     // For now return a fake user
     if (id == 3) {
-      Some(User(Some(3L), "test@test.com", "mypassword", "John Smith", None))
+      Some(UserTwo(Some(3L), "test@test.com", "mypassword", "John Smith", None))
     } else {
       None
     }
   }
 
-  def findByEmailAndPassword(email: String, password: String): Option[User] = {
+  def findByEmailAndPassword(email: String, password: String): Option[UserTwo] = {
     // TODO: find the corresponding user; don't forget to encrypt the password
     //
     // For now return a fake user
-    Some(User(Some(3L), email, password, "John Smith", None))
+    Some(UserTwo(Some(3L), email, password, "John Smith", None))
   }
 
 }

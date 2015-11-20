@@ -15,8 +15,15 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 // Dependencies
 libraryDependencies ++= Seq(
+  javaJdbc,
+  javaJpa.exclude("org.hibernate.javax.persistence", "hibernate-jpa-2.0-api"),
   filters,
   cache,
+  "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
+  "org.hibernate" % "hibernate-entitymanager" % "4.3.6.Final",
+  "org.hibernate" % "hibernate-search-orm" % "4.5.3.Final",
+  "com.fasterxml.jackson.datatype" % "jackson-datatype-hibernate4" % "2.4.1",
+  "org.mindrot" % "jbcrypt" % "0.3m",
   // WebJars (i.e. client-side) dependencies
   "org.webjars" % "requirejs" % "2.1.14-1",
   "org.webjars" % "underscorejs" % "1.6.0-3",
@@ -24,6 +31,9 @@ libraryDependencies ++= Seq(
   "org.webjars" % "bootstrap" % "3.3.5" exclude("org.webjars", "jquery"),
   "org.webjars" % "angularjs" % "1.4.3" exclude("org.webjars", "jquery")
 )
+
+
+
 
 // Scala Compiler Options
 scalacOptions in ThisBuild ++= Seq(

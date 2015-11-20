@@ -82,7 +82,7 @@ class Application(val cache: CacheApi) extends Controller with Security with Log
       },
       credentials => {
         // TODO Check credentials, log user in, return correct token
-        User.findByEmailAndPassword(credentials.email, credentials.password).fold {
+        Some(User.findByEmailAndPassword(credentials.email, credentials.password)).fold {
           log.info("Unregistered user tried to log in")
           BadRequest(Json.obj("status" -> "KO", "message" -> "User not registered"))
         } { user =>
@@ -96,8 +96,8 @@ class Application(val cache: CacheApi) extends Controller with Security with Log
            *
            */
           val token = java.util.UUID.randomUUID.toString
-          cache.set(token, user.id.get)
-          log.info(s"User ${user.id.get} succesfully logged in")
+          cache.set(token, user.id)
+          log.info(s"User ${user.id} succesfully logged in")
           Ok(Json.obj("token" -> token))
             .withCookies(Cookie(AuthTokenCookieKey, token, None, httpOnly = false))
         }
