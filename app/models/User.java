@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
+import org.mindrot.jbcrypt.BCrypt;
 import play.Logger;
 import play.db.jpa.JPA;
 import play.libs.F;
@@ -13,8 +15,12 @@ import play.mvc.Result;
 import javax.persistence.*;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by bp on 20.11.15.
@@ -39,7 +45,6 @@ public class User {
     @Column(name = "usr_first_name", nullable = false)
     public String firstName;
 
-
     @Column(name = "usr_last_name", nullable = false)
     public String lastName;
 
@@ -55,16 +60,19 @@ public class User {
     @Column(name = "usr_updated_by", nullable = true)
     public String updatedBy;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "usr_created_at", nullable = false, length = 29)
-    public DateTime createdAt;
+    @Column(name = "usr_auth_token", nullable = true)
+    public String authToken;
 
+    @Column(name = "usr_created_at", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "usr_updated_at", nullable = false, length = 29)
-    public DateTime updatedAt;
+    public Date createdAt;
+
+    @Column(name = "usr_updated_at", nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    public Date updatedAt;
 
     @Column(name = "usr_first_login")
-    public DateTime firstLogin;
+    public Date firstLogin;
 
     @Column(name = "usr_last_login")
     public Date lastLogin;
@@ -73,8 +81,7 @@ public class User {
     public Date dateOfBirth;
 
     public static User findById(String id) {
-        //return JPA.em().find(User.class, id);
-        return findByEmailAndPassword("","");
+        return JPA.em().find(User.class, id);
     }
 
     public static User findByUsername(String username) {
@@ -87,16 +94,24 @@ public class User {
         }
     }
 
-    public static User findByEmailAndPassword(String email, String Password) {
-        // TODO: find the corresponding user; don't forget to encrypt the password
-        User testUser = new User();
-        testUser.id = "1111";
-        testUser.email = "test@test.com";
-        testUser.password = "test";
-        testUser.firstName = "John";
-        testUser.lastName = "Smith";
+    public static User findByEmailAndPassword(String email, String password) {
+        System.out.println(BCrypt.hashpw(password, BCrypt.gensalt(10)));
 
-        return testUser;
+        // BCrypt.checkpw(password, user.getPassword()
+
+        try {
+            User user = findByEmailToLower(email);
+            if (user == null) {
+                return null;
+            }
+            if ( BCrypt.checkpw(password, user.getPassword())) {
+                return user;
+            } else {
+                return null;
+            }
+        } catch (NoResultException nre) {
+            return null;
+        }
     }
 
     public static User findByEmailToLower(String email) {
@@ -104,6 +119,16 @@ public class User {
             return JPA.em()
                     .createQuery("from User where lower(email) = :e", User.class)
                     .setParameter("e", email).getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
+    public static User findByAuthToken(String authToken) {
+        try {
+            return JPA.em()
+                    .createQuery("from User where authToken = :t", User.class)
+                    .setParameter("t", authToken).getSingleResult();
         } catch (NoResultException nre) {
             return null;
         }
@@ -125,22 +150,14 @@ public class User {
         }
     }
 
-    public static User findUserByName(String _search) {
+    public static List<User> getList() {
         try {
-            String queryString = "select m from User m " +
-                    "where (upper(concat(m.lastName, ', ', m.firstName)) like upper(:search)) " +
-                    "order by m.eposId desc";
-
-            Logger.debug(queryString);
-
-            TypedQuery<User> query = JPA.em().createQuery(queryString, User.class)
-                    .setParameter("search", _search + "%");
-
-            return query.setMaxResults(1).setFirstResult(0).getSingleResult();
+            String queryString = "select m from User m";
+            TypedQuery<User> query = JPA.em().createQuery(queryString, User.class);
+            return query.getResultList();
         } catch (NoResultException nre) {
             return null;
         }
-
     }
 
     public void save() {
@@ -163,6 +180,17 @@ public class User {
         return w.toString();
     }
 
+    public String createToken() {
+        authToken = UUID.randomUUID().toString();
+        save();
+        return authToken;
+    }
+
+    public void deleteAuthToken() {
+        authToken = null;
+        save();
+    }
+
     public String getFullName() {
         return this.getLastName() + ((this.getLastName() != null && this.getLastName().length() > 0) ? ", " : "") + this.getFirstName();
     }
@@ -180,7 +208,7 @@ public class User {
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        this.email = email.toLowerCase();
     }
 
     public String getPassword() {
@@ -188,7 +216,7 @@ public class User {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = BCrypt.hashpw(password, BCrypt.gensalt(10));
     }
 
     public String getFirstName() {
@@ -239,27 +267,27 @@ public class User {
         this.updatedBy = updatedBy;
     }
 
-    public DateTime getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(DateTime createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
-    public DateTime getUpdatedAt() {
+    public Date getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(DateTime updatedAt) {
+    public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public DateTime getFirstLogin() {
+    public Date getFirstLogin() {
         return firstLogin;
     }
 
-    public void setFirstLogin(DateTime firstLogin) {
+    public void setFirstLogin(Date firstLogin) {
         this.firstLogin = firstLogin;
     }
 
@@ -277,5 +305,13 @@ public class User {
 
     public void setDateOfBirth(Date dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
     }
 }

@@ -8,6 +8,8 @@ Play Angular Application with JPA and User Security.
 
 It is a fork of the repository from Marius Soutier...
 
+The security was updated based on the Java Example from James Ward: https://github.com/jamesward/play-rest-security
+
 This template application shows how to organize your application with
 [Playframework 2](http://www.playframework.com), [WebJars](http://www.webjars.org),
 [RequireJS](http://www.requirejs.org) and [AngularJS](http://www.angularjs.org).

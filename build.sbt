@@ -19,9 +19,10 @@ libraryDependencies ++= Seq(
   javaJpa.exclude("org.hibernate.javax.persistence", "hibernate-jpa-2.0-api"),
   filters,
   cache,
-  "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
+  "org.postgresql" % "postgresql" % "9.3-1104-jdbc41",
   "org.hibernate" % "hibernate-entitymanager" % "4.3.6.Final",
   "org.hibernate" % "hibernate-search-orm" % "4.5.3.Final",
+  "org.jadira.usertype" % "usertype.extended" % "4.0.0.GA",
   "com.fasterxml.jackson.datatype" % "jackson-datatype-hibernate4" % "2.4.1",
   "org.mindrot" % "jbcrypt" % "0.3m",
   // WebJars (i.e. client-side) dependencies
