@@ -2,6 +2,12 @@
 
 ## Intro
 
+This template application was updated (2015/11/20) to add a Java User Object instead of the Scala one, JPA, BasiApiController for better
+handling of JSON Responses from a Java Controller, and to prepare the template for immediate use as a Java
+Play Angular Application with JPA and User Security.
+
+It is a fork of the repository from Marius Soutier...
+
 This template application shows how to organize your application with
 [Playframework 2](http://www.playframework.com), [WebJars](http://www.webjars.org),
 [RequireJS](http://www.requirejs.org) and [AngularJS](http://www.angularjs.org).
