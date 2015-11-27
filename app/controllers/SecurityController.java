@@ -11,7 +11,7 @@ import play.mvc.*;
 
 public class SecurityController extends Controller {
 
-    public final static String AUTH_TOKEN_HEADER = "X-AUTH-TOKEN";
+    public final static String AUTH_TOKEN_HEADER = "XSRF-TOKEN";
     public static final String AUTH_TOKEN = "authToken";
 
 
@@ -45,8 +45,15 @@ public class SecurityController extends Controller {
         }
     }
 
-    @Security.Authenticated(Secured.class)
     @Transactional
+    @Security.Authenticated(Secured.class)
+    public Result authUser() {
+        User currentUser = Secured.getUser(Application.ctx());
+        return ok(currentUser.toJson());
+    }
+
+    @Transactional
+    @Security.Authenticated(Secured.class)
     public Result logout() {
         response().discardCookie(AUTH_TOKEN);
         getUser().deleteAuthToken();

@@ -54,6 +54,8 @@ The JavaScript modules are organized as follows:
 * Run via `sbt ~run`
 * Go to [localhost:9000](http://localhost:9000)
 
+* activator -jvm-debug 9999 ~run
+
 This uses the normal JavaScript files and loads libraries from the downloaded WebJars.
 
 ### Prod Mode

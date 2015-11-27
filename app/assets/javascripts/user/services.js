@@ -29,7 +29,7 @@ define(['angular', 'common'], function (angular) {
         return playRoutes.controllers.SecurityController.login().post(credentials).then(function (response) {
           // return promise so we can chain easily
           token = response.data.token;
-          return playRoutes.controllers.Users.authUser().get();
+          return playRoutes.controllers.SecurityController.authUser().get();
         }).then(function (response) {
           user = response.data;
           return user;

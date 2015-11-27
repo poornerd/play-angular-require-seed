@@ -14,13 +14,14 @@ GET           /jsroutes.js         controllers.ApplicationScala.jsRoutes()
 # Authentication
 POST          /login               controllers.SecurityController.login()
 POST          /logout              controllers.SecurityController.logout()
+GET           /authuser            controllers.SecurityController.authUser()
 
 # Users
 #GET           /users/:id           controllers.Users.user(id: String)
 #POST          /users               controllers.Users.createUser()
 #PUT           /users/:id           controllers.Users.updateUser(id: String)
 #DELETE        /users/:id           controllers.Users.deleteUser(id: String)
-#GET           /authuser            controllers.Users.authUser()
+
 
 # Static
 # ~~~~
