@@ -33,8 +33,7 @@ libraryDependencies ++= Seq(
   "org.webjars" % "angularjs" % "1.4.3" exclude("org.webjars", "jquery")
 )
 
-
-
+PlayKeys.externalizeResources := false
 
 // Scala Compiler Options
 scalacOptions in ThisBuild ++= Seq(
